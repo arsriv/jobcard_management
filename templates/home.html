@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{%block title%}JobCard Management System{% endblock %}</title>
+    
+    <!-- Common base CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        /* Topbar Styles */
+        .topbar {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .topbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .site-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 2rem;
+        }
+        
+        .nav-menu li {
+            position: relative;
+        }
+        
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+        
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        
+        
+        .access-a {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .access-a:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        
+        .access-a.active {
+            background: rgba(255,255,255,0.4);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        /* Mobile Responsive */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .topbar-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-menu {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .site-title {
+                font-size: 20px;
+            }
+            
+            .accessibility-controls {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+                gap: 0.5rem;
+            }
+            
+            .nav-menu a {
+                padding: 12px 16px;
+            }
+        }
+        
+        /* Main content adjustments */
+        
+        
+        .main-content {
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin-top: 10%;
+            margin-left:auto;
+            display: flex;
+            gap: 2rem;
+      
+        }
+        
+        .box {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-size: 18px;
+            font-weight: 600;
+            color:white;
+        }
+        
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body id="base_mainBody">
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar-container">
+            <div class="logo-section">
+                <div class="logo-icon">JC</div>
+                <h1 class="site-title">JobCard Management System</h1>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/user" class="nav-link">User Portal</a></li>
+                    <li><a href="/officer" class="nav-link">Officer Dashboard</a></li>
+                    <li><a href="{{ url_for('admin') }}" class="nav-link" target="_blank">Admin Panel</a></li>
+                </ul>
+            </nav>
+            
+            
+        </div>
+    </header>
+
+    {%block content%}
+    <div class="main-content">
+        <div class="box" onclick="location.href='/user'">
+            <h3>User Portal</h3>
+            
+        </div>
+        <a href="{{ url_for('admin') }}" target="_blank" style="text-decoration: none;">
+            <div class="box">
+                <h3>Admin Panel</h3>
+                
+            </div>
+        </a>
+        <div class="box" onclick="location.href='/officer'">
+            <h3>Officer Dashboard</h3>
+            
+        </div>
+    </div>
+    {%endblock%}
+
+    {% block scripts %}
+    <script>
+        const mainBody = document.getElementById("base_mainBody");
+        const buttons = document.querySelectorAll(".access-a");
+        let fontSize = 16;
+
+      
+
+        // Add active class to current page nav link
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+    
+    <!-- Load jQuery offline -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+
+    <!-- Then load your custom script -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    {% endblock %}
+
+</body>
+</html>

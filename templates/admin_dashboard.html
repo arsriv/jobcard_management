@@ -1,0 +1,552 @@
+{% extends "home.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/admin_dashboard.css">
+
+{% endblock %}
+
+{% block content %}
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  // Initialize jsPDF
+  window.jsPDF = window.jspdf.jsPDF;
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+
+
+
+<body>
+  <div class="dashboard-header">
+    <div class="header-left">
+      <h1>Job Request Management Dashboard</h1>
+      <br>
+      <h2>Welcome {{session['admin']['name']}} </h2>
+      <br><br>
+      <h4>Admin ID: {{session['admin']['_id']}} </h4>
+      <h4> Email: {{session['admin']['email']}} </h4>
+
+
+    </div>
+    <a href="/admin_signout"><button class="logout_btn btn_dash">Logout</button></a>
+
+    <div class="header-right">
+
+      <!-- Analytics Section -->
+      <div class="dashboard-section analytics">
+        <div class="section-header">
+          <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg>
+          <h2 class="section-title">Analytics</h2>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalJobs">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="pendingJobs">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="processingJobs">0</div>
+            <div class="stat-label">Processing</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="completedJobs">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative;">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-container">
+    <div class="dashboard-grid">
+      <!-- All Jobs Section -->
+      <div class="dashboard-section all-jobs">
+        <div class="section-header">
+          <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+            </path>
+          </svg>
+          <h2 class="section-title">All Job Requests</h2>
+        </div>
+
+        <div class="controls">
+          <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search by name, ID, or division...">
+          </div>
+
+          <select id="sortBy" class="filter-select">
+            <option value="date">Sort by Date (Newest)</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="status">Sort by Status</option>
+          </select>
+
+          <select id="statusFilter" class="filter-select">
+            <option value="all">All Jobs</option>
+            <option value="pending">Pending Only</option>
+            <option value="processing">Processing Only</option>
+            <option value="completed">Completed Only</option>
+          </select>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="jobs-table">
+            <thead>
+              <tr>
+
+                <th>Request ID</th>
+                <th>Employee and ID</th>
+                <th>Submission Date</th>
+                <th>Machine Type</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Assigned To</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="jobsTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+
+
+
+
+  <!-- Add these sections to your dashboard grid (after the existing sections) -->
+
+  <!-- Users Management Section -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z">
+        </path>
+      </svg>
+      <h2 class="section-title">Users Management</h2>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <input type="text" id="userSearchInput" placeholder="Search users by name or employee ID...">
+      </div>
+      <select id="userSortBy" class="filter-select">
+        <option value="name">Sort by Name</option>
+        <option value="division">Sort by Division</option>
+        <option value="jobCount">Sort by Job Count</option>
+      </select>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="jobs-table">
+        <thead>
+          <tr>
+            <th>Employee Name</th>
+            <th>Employee ID</th>
+            <th>Division</th>
+            <th>Total Jobs</th>
+            <th>Active Jobs</th>
+            <th>Last Activity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Officers Management Section -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+        </path>
+      </svg>
+      <h2 class="section-title">Officers Management</h2>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <input type="text" id="officerSearchInput" placeholder="Search officers by name...">
+      </div>
+      <select id="officerSortBy" class="filter-select">
+        <option value="name">Sort by Name</option>
+        <option value="assignedJobs">Sort by Assigned Jobs</option>
+        <option value="completedJobs">Sort by Completed Jobs</option>
+      </select>
+      <button class="btn-primary" onclick="openAddOfficerModal()">+ Add Officer</button>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table class="jobs-table">
+        <thead>
+          <tr>
+            <th>Officer Name</th>
+            <th>Officer ID</th>
+            <th>Email ID</th>
+            <th>Assigned Jobs</th>
+            <th>Completed Jobs</th>
+            <th>Active Jobs</th>
+            <th>Success Rate</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="officersTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+<!-- View Job Details Modal -->
+<div id="viewJobModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeViewJobModal()">&times;</span>
+    <h3>📋 Job Details</h3>
+
+    <div class="form-group">
+      <label>Employee:</label>
+      <p id="viewJobEmployee"></p>
+    </div>
+
+    <div class="form-group">
+      <label>Division:</label>
+      <p id="viewJobDivision"></p>
+    </div>
+
+    <div class="form-group">
+      <label>Machine Type:</label>
+      <p id="viewJobMachine"></p>
+    </div>
+
+    <div class="form-group">
+      <label>Services:</label>
+      <p id="viewJobServices"></p>
+    </div>
+
+    <div class="form-group">
+      <label>Status:</label>
+      <p id="viewJobStatus"></p>
+    </div>
+
+    <div class="form-group">
+      <label>Priority:</label>
+      <p id="viewJobPriority"></p>
+    </div>
+
+    <div class="form-group">
+      <label>Assigned To:</label>
+      <p id="viewJobAssignedTo"></p>
+    </div>
+
+    <div class="modal-buttons">
+      <button class="btn-secondary" onclick="closeViewJobModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <!-- Edit User Modal -->
+  <div id="editUserModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditUserModal()">&times;</span>
+      <h3>✏️ Edit User Details</h3>
+
+      <div class="form-group">
+        <label for="editUserName">Employee Name:</label>
+        <input type="text" id="editUserName">
+      </div>
+
+      <div class="form-group">
+        <label for="editUserEmpId">Employee ID:</label>
+        <input type="text" id="editUserEmpId">
+      </div>
+
+      <div class="form-group">
+        <label for="editUserDivision">Employee Division:</label>
+        <input type="text" id="editUserDivision">
+      </div>
+
+
+
+      <div class="modal-buttons">
+        <button class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveUserEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Officer Modal -->
+  <div id="addOfficerModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAddOfficerModal()">&times;</span>
+
+    <h2>Add Officer</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST" action="/new">
+      <div class="mb-3">
+        <label for="_id">Officer ID:</label>
+        <input type="text" name="_id" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="name">Name:</label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="group">Group:</label>
+        <input type="text" name="group" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email_id">Email ID:</label>
+        <input type="email" name="email_id" class="form-control" required>
+      </div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn btn-secondary" onclick="closeAddOfficerModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Add Officer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  <!-- Edit Officer Modal -->
+  <div id="editOfficerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditOfficerModal()">&times;</span>
+      <h3>✏️ Edit Officer Details</h3>
+
+      <div class="form-group">
+        <label for="editOfficerName">Officer Name:</label>
+        <input type="text" id="editOfficerName">
+      </div>
+
+      <div class="form-group">
+        <label for="editOfficerSpecialization">Specialization:</label>
+        <select id="editOfficerSpecialization">
+          <option value="Hardware">Hardware</option>
+          <option value="Software">Software</option>
+          <option value="Network">Network</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn-secondary" onclick="closeEditOfficerModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveOfficerEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+<!-- RejectRemark Modal -->
+  <div id="RejectRemark" class="modal">
+    <div class="modal-content">
+      <div id="RejectRemarkText"></div>
+      <span class="close" onclick="closeRejectRemarkModal()">&times;</span>
+      <h3>⚠️ Rejection Remark</h3>
+    </div>
+  </div>
+
+
+
+
+  <!-- Assignment Modal -->
+  <div id="assignmentModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAssignmentModal()">&times;</span>
+      <h3>🔧 Assign Request to Officer</h3>
+
+      <div class="form-group">
+        <label for="officerSelect">Select Officer:</label>
+        <select id="officerSelect">
+          <!-- <option value="">Select an officer...</option>
+          <option value="Tech Team A">Tech Team A</option>
+          <option value="Tech Team B">Tech Team B</option>
+          <option value="Tech Team C">Tech Team C</option>
+          <option value="Hardware Specialist">Hardware Specialist</option>
+          <option value="Software Specialist">Software Specialist</option> -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="assignmentNotes">Assignment Notes:</label>
+        <textarea id="assignmentNotes" placeholder="Optional notes..." rows="3"></textarea>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn-secondary" onclick="closeAssignmentModal()">Cancel</button>
+        <button class="btn-primary" onclick="confirmAssignment()">Assign Request</button>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditModal()">&times;</span>
+      <h3>✏️ Edit Job Request</h3>
+
+      <div class="form-group">
+        <label for="editStatus">Status:</label>
+        <select id="editStatus">
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="rejected">Rejected</option>
+
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editPriority">Priority:</label>
+        <select id="editPriority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editDivision">Division:</label>
+        <input type="text" id="editDivision">
+      </div>
+
+      <div class="form-group">
+        <label for="editMachine">Machine Type:</label>
+        <input type="text" id="editMachine">
+      </div>
+
+  
+
+      
+
+      <div class="form-group">
+        <label for="editLocation">Location:</label>
+        <input type="text" id="editLocation">
+      </div>
+      <div class="form-group">
+        <label for="editProjectNo">Project No:</label>
+        <input type="text" id="editProjectNo">
+      </div>
+      <div class="form-group">
+        <label for="editMachineType">Machine Type:</label>
+        <input type="text" id="editMachineType">
+      </div>
+      <div class="form-group">
+        <label for="editModelNo">Model No:</label>
+        <input type="text" id="editModelNo">
+      </div>
+      <div class="form-group">
+        <label for="editSerialNo">Serial No:</label>
+        <input type="text" id="editSerialNo">
+      </div>
+      <div class="form-group">
+        <label for="editPartNo">Part No:</label>
+        <input type="text" id="editPartNo">
+      </div>
+      <div class="form-group">
+        <label for="editPirNo">PIR No:</label>
+        <input type="text" id="editPirNo">
+      </div>
+      <div class="form-group">
+        <label for="editOS">Operating System:</label>
+        <input type="text" id="editOS">
+      </div>
+      <div class="form-group">
+        <label for="editServices">Services:</label>
+        <input type="text" id="editServices" placeholder="Comma-separated">
+      </div>
+      
+      <div class="form-group">
+        <label for="editDocType">Document Type:</label>
+        <input type="text" id="editDocType">
+      </div>
+      <div class="form-group">
+        <label for="editNetworkType">Network Type:</label>
+        <input type="text" id="editNetworkType">
+      </div>
+      <div class="form-group">
+        <label for="editAdditionalServices">Additional Services:</label>
+        <input type="text" id="editAdditionalServices">
+      </div>
+      
+      
+      <div class="form-group">
+        <label for="editNotes">Notes:</label>
+        <textarea id="editNotes" rows="3"></textarea>
+      </div>
+
+
+
+
+
+
+
+
+
+
+      <div class="modal-buttons">
+        <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+
+{% endblock %}

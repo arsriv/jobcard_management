@@ -1,0 +1,50 @@
+{% extends "home.html" %}
+{% block title %}User Panel{% endblock %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user_portal.css">
+{% endblock %}
+
+{% block content %}
+
+<h1>Welcome to the Officers Panel</h1>
+<section class="wrapper active">
+      <div class=" signup">
+        <br><br><br><br><br><br><br><br><br><br> <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+  
+      </div>
+
+      <div class="form_user login">
+        <div class="form_header">Login</div>
+        <form name="officer_login_form">
+          <input type="email" name="login_email"placeholder="Email ID" required />
+          <input type="password" name="login_password" placeholder="Password" required />
+          <p class="error error--hidden"></p>
+          <a href="/officer/forgot-password">Forgot password?</a>
+          <input type="submit" value="Login" />
+        </form>
+      </div>
+
+      <!-- <script>
+        const wrapper = document.querySelector(".wrapper"),
+          signupHeader = document.querySelector(".signup .form_header"),
+          loginHeader = document.querySelector(".login .form_header");
+
+        loginHeader.addEventListener("click", () => {
+          wrapper.classList.add("active");
+        });
+        signupHeader.addEventListener("click", () => {
+          wrapper.classList.remove("active");
+        });
+      </script> -->
+    </section>
+
+
+
+{% endblock %}
+
+
+
+
+

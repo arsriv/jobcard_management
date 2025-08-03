@@ -1,0 +1,60 @@
+{% extends "home.html" %}
+{% block title %}User Panel{% endblock %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user_portal.css">
+{% endblock %}
+
+{% block content %}
+
+<h1>Welcome to the User Panel</h1>
+<section class="wrapper active">
+      <div class="form_user signup">
+        <div class="form_header">Signup</div>
+        <form name="signup_form">
+
+          <input type="text" name="name"placeholder="Full name" required />
+          <input type="text" name="ID"placeholder="Employee ID" required />
+          <input type="email" name="email"placeholder="Email ID" required />
+          <input type="text" name="group"placeholder="Group/Area/Division" required />
+          <input type="password" name="password" placeholder="Password" required />
+          
+          <p class="error error--hidden"></p>
+          <input type="submit" value="Signup" />
+        </form>
+      </div>
+
+      <div class="form_user login">
+        <div class="form_header">Login</div>
+        <form name="login_form">
+          <input type="email" name="login_email"placeholder="Email ID" required />
+          <input type="password" name="login_password" placeholder="Password" required />
+          <p class="error error--hidden"></p>
+          <a href="/forgot-password">Forgot password?</a>
+          <input type="submit" value="Login" />
+        </form>
+      </div>
+
+      <script>
+        const wrapper = document.querySelector(".wrapper"),
+          signupHeader = document.querySelector(".signup .form_header"),
+          loginHeader = document.querySelector(".login .form_header");
+
+        loginHeader.addEventListener("click", () => {
+          wrapper.classList.add("active");
+        });
+        signupHeader.addEventListener("click", () => {
+          wrapper.classList.remove("active");
+        });
+      </script>
+    </section>
+
+
+
+{% endblock %}
+
+
+
+
+

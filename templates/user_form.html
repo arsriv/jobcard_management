@@ -1,0 +1,402 @@
+{% extends "home.html" %}
+
+{% block title %}User Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user_form.css">
+{% endblock %}
+
+{% block content %}
+    <script src="{{ url_for('static', filename='js/user_form.js') }}"></script>
+    <script>
+        //  fetching user data from Flask session
+        function fetchUserData() {
+            const userData = {
+                user_name:"{{session['user']['name']}}",
+                emp_id: "{{session['user']['_id']}}",
+                division: "{{session['user']['group']}}",
+                email: "{{session['user']['email']}}"
+            };
+
+            // Populate the form fields
+            document.getElementById('userName').value = userData.user_name;
+            document.getElementById('empId').value = userData.emp_id;
+            document.getElementById('division').value = userData.division;
+            document.getElementById('email').value = userData.email;
+        }
+
+    </script>
+    <div class="container">
+        <div class="form-header">
+            <h1>IT Service Request</h1>
+            <p>Submit your technical support request with ease</p>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="step active" id="step1">
+                    <span class="step-number">1</span>
+                    <span>User Details</span>
+                </div>
+                <div class="step" id="step2">
+                    <span class="step-number">2</span>
+                    <span>Machine Details</span>
+                </div>
+                <div class="step" id="step3">
+                    <span class="step-number">3</span>
+                    <span>Services</span>
+                </div>
+                <div class="step" id="step4">
+                    <span class="step-number">4</span>
+                    <span>Review</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="serviceForm" class="form-content" name="job_form">
+            <!-- User Details Section -->
+            <div class="form-section" id="section1">
+                <h2 class="section-title">User Details</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>User Name *</label>
+                        <input type="text" name="user_name" id="userName" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Employee ID *</label>
+                        <input type="text" name="emp_id" id="empId" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Group/Area/Division *</label>
+                        <input type="text" name="division" id="division" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address *</label>
+                        <input type="email" name="email" id="email" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Location/Room No. *</label>
+                        <input type="text" name="location" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Project No. *</label>
+                        <input type="text" name="project_no" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Machine Details Section -->
+            <div class="form-section hidden" id="section2">
+                <h2 class="section-title">Machine Details</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Machine Type *</label>
+                        <select name="machine_type" required onchange="toggleOtherMachine(this)">
+                            <option value="">-- Select Machine --</option>
+                            <option value="pc">PC</option>
+                            <option value="laptop">Laptop</option>
+                            <option value="printer">Printer</option>
+                            <option value="monitor">Monitor</option>
+                            <option value="scanner">Scanner</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="otherMachineGroup" style="display: none;">
+                        <label>Enter Machine Type *</label>
+                        <input type="text" name="other_machine" placeholder="Please specify">
+                    </div>
+                    <div class="form-group">
+                        <label>Model No. *</label>
+                        <input type="text" name="model_no" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Serial No. *</label>
+                        <input type="text" name="serial_no" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Part No. *</label>
+                        <input type="text" name="part_no" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Operating System *</label>
+                        <select name="operating_system" required onchange="toggleOtherOS(this)">
+                            <option value="">-- Select Operating System --</option>
+                            <option value="windows11">Windows 11</option>
+                            <option value="windows10">Windows 10</option>
+                            <option value="windows7">Windows 7</option>
+                            <option value="vista">Vista</option>
+                            <option value="xp">XP</option>
+                            <option value="server2003">Windows Server 2003</option>
+                            <option value="server2008">Windows Server 2008</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="otherOSGroup" style="display: none;">
+                        <label>Enter Operating System *</label>
+                        <input type="text" name="other_os" placeholder="Please specify">
+                    </div>
+                    <div class="form-group">
+                        <label>PIR No. *</label>
+                        <input type="text" name="pir_no" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Section -->
+            <div class="form-section hidden" id="section3">
+                <h2 class="section-title">Services Required</h2>
+                <p style="margin-bottom: 25px; color: #6c757d;">Select all services that apply to your request.</p>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">E-mail Services</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="email-new-id" id="emailNewId">
+                                <label for="emailNewId">New ID Creation</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="email-password" id="emailPassword">
+                                <label for="emailPassword">Password Problem</label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>E-Mail ID (if applicable)</label>
+                            <input type="email" name="email_id" placeholder="Enter email address">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">LAN Services</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="lan-connectivity" id="lanConnectivity">
+                                <label for="lanConnectivity">Connectivity</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="lan-file-sharing" id="lanFileSharing">
+                                <label for="lanFileSharing">File & Printer Sharing</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="lan-port-problem" id="lanPortProblem">
+                                <label for="lanPortProblem">Port/Cord Problem</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">Internet Services</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="internet-service-fault" id="internetFault">
+                                <label for="internetFault">Service Fault</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="internet-download-problem" id="internetDownload">
+                                <label for="internetDownload">Downloading Problem</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">Antivirus Services</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="antivirus-installation" id="antivirusInstall">
+                                <label for="antivirusInstall">New Installation</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="antivirus-removal" id="antivirusRemoval">
+                                <label for="antivirusRemoval">Virus Removal</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="antivirus-roaming" id="antivirusRoaming">
+                                <label for="antivirusRoaming">Roaming Client</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">Installation Services</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="installation-os-office" id="installOSOffice">
+                                <label for="installOSOffice">OS/Office</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="installation-hardware" id="installHardware">
+                                <label for="installHardware">New Hardware</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="installation-software" id="installSoftware">
+                                <label for="installSoftware">New Software</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">Printer Services</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="printer-power-supply" id="printerPower">
+                                <label for="printerPower">Power Supply</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="printer-paper-jam" id="printerJam">
+                                <label for="printerJam">Paper Jam</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="printer-not-working" id="printerNotWorking">
+                                <label for="printerNotWorking">Not Working</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">Hardware Problems</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-cd-dvd" id="hardwareCDDVD">
+                                <label for="hardwareCDDVD">CD/DVD/FDD</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-smps" id="hardwareSMPS">
+                                <label for="hardwareSMPS">SMPS</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-hdd" id="hardwareHDD">
+                                <label for="hardwareHDD">HDD Not Access</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-keyboard" id="hardwareKeyboard">
+                                <label for="hardwareKeyboard">Keyboard</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-mouse" id="hardwareMouse">
+                                <label for="hardwareMouse">Mouse</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-ram" id="hardwareRAM">
+                                <label for="hardwareRAM">RAM</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-monitor" id="hardwareMonitor">
+                                <label for="hardwareMonitor">Monitor</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-lan-card" id="hardwareLAN">
+                                <label for="hardwareLAN">LAN Card</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="hardware-ports" id="hardwarePorts">
+                                <label for="hardwarePorts">USB/Serial/Parallel Port</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">Website Update</button>
+                    <div class="panel">
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="services" value="website-update" id="websiteUpdate">
+                            <label for="websiteUpdate">CRRI Website Update</label>
+                        </div>
+                        <div class="form-grid" style="margin-top: 15px;">
+                            <div class="form-group">
+                                <label>Type of Document</label>
+                                <input type="text" name="document_type" placeholder="Specify document type">
+                            </div>
+                            <div class="form-group">
+                                <label>Internet/Intranet?</label>
+                                <select name="network_type">
+                                    <option value="">-- Select --</option>
+                                    <option value="internet">Internet</option>
+                                    <option value="intranet">Intranet</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button type="button" class="accordion-btn">Other IT Services</button>
+                    <div class="panel">
+                        <div class="service-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="other-document-printing" id="otherPrinting">
+                                <label for="otherPrinting">Document Printing</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="other-vc-support" id="otherVC">
+                                <label for="otherVC">VC Support</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="other-digital-projector" id="otherProjector">
+                                <label for="otherProjector">Digital Projector</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="other-scanning" id="otherScanning">
+                                <label for="otherScanning">Scanning</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" name="services" value="other-cd-dvd-writing" id="otherCDDVD">
+                                <label for="otherCDDVD">CD/DVD Writing</label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Additional Services (if any)</label>
+                            <textarea name="additional_services" rows="3" placeholder="Please describe any other services you need..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Section -->
+            <div class="form-section hidden" id="section4">
+                <h2 class="section-title">Review Your Request</h2>
+                <div id="reviewContent">
+                    <!-- Review content will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="form-navigation">
+                <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                    ← Previous
+                </button>
+                <div></div>
+                <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                    Next →
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                    Submit Request
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Submitting your request...</p>
+            </div>
+        </form>
+    </div>
+<div id="countdown-timer" style="display:none; font-weight:bold; margin-top: 20px;"></div>
+    
+        
+{% endblock %}

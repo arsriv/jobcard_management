@@ -1,0 +1,39 @@
+<!-- {% extends "home.html" %}
+{% block title %}Job Feedback{% endblock %}
+
+{% block content %}
+<div class="officer-dashboard">
+  <h2>Completion Status: {{ job_id }}</h2>
+  <form action="/officer/submit_feedback" method="POST">
+    <input type="hidden" name="job_id" value="{{ job_id }}">
+    
+    <label for="rating">Job is completed/closed and entered in the completion register</label>
+    <select name="rating" required>
+      <option value="">Select</option>
+      <option value="Y">Yes</option>
+      <option value="N">No</option>
+    </select>
+
+    <br><br>
+    <label for="date">Completion Date:</label><br>
+<input type="date" id="date" name="date" required><br><br>
+
+
+    <label for="comments">Comments:</label><br>
+    <textarea name="comments" rows="5" cols="50" placeholder="job Completed/Referred/ Mention Problem"></textarea>
+
+    <br><br>
+    <button type="submit">Submit Feedback</button>
+  </form>
+</div>
+{% endblock %}
+{%block scripts%}
+<script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("date").valueAsDate = new Date();
+  });
+</script>
+
+</script>
+{%endblock%} -->

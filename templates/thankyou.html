@@ -1,0 +1,18 @@
+{% extends "home.html" %}
+{%block title%}Thank You{% endblock %}
+
+{%block content%}
+<div class="thankyou-box">
+    <h1>Thank You!</h1>
+    <p>Your job has been submitted successfully.</p>
+    <p><strong>Job ID:</strong> <span class="job-id">{{ job_id }}</span></p>
+    <a href="{{ url_for('track_progress', job_id=job_id) }}"class="track-btn">
+        Track Your Request
+    </a>
+  </div>
+
+
+
+
+
+{%endblock%}

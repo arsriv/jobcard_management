@@ -1,0 +1,108 @@
+{% extends "home.html" %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user_dashboard.css">
+
+{% endblock %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='js/user_dashboard.js') }}"></script>
+
+<div class="dashboard-container">
+  <!-- Header with User Profile -->
+  <div class="header">
+    <div class="user-profile">
+      <div class="user-avatar" id="user-logo">
+      </div>
+      <div class="user-info">
+        <h1 id="user-name">{{session['user']['name']}}</h1>
+        <div class="user-details">
+          <div class="user-detail-item">
+            <span>Employee ID:</span>
+            <span>{{session['user']['_id']}}</span>
+          </div>
+          <div class="user-detail-item">
+            <span>Email:</span>
+            <span>{{session['user']['email']}}</span>
+            
+          </div>
+          <div class="user-detail-item">
+            <span>Division:</span>
+            <span>{{session['user']['group']}}</span>
+          </div>
+          <!-- <div class="user-detail-item">
+            <span>Project:</span>
+            <span>PRJ-2024-001</span>
+          </div> -->
+        </div>
+      </div>
+      <a href="/users/signout"><button class="logout_btn btn_dash">Logout</button></a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <div class="dashboard-title">
+        <h2>My Job Requests</h2>
+        <p>Track and manage your Job requests</p>
+      </div>
+      <button class="create-job-btn" data-url="{{ url_for('user_form') }}" onclick="goTo(this)">
+        <span>➕</span>
+        New Job Request
+      </button>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalCount">0</div>
+        <div class="stat-label">Total Requests</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="pendingCount">0</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="completedCount">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="progressCount">0</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+    </div>
+
+    <!-- Requests Section -->
+    <div class="requests-section">
+      <div class="section-header">
+        <h2 class="section-title">Request History</h2>
+        <div class="controls-container">
+          <div class="search-container">
+            <div class="search-icon">🔍</div>
+            <input type="text" class="search-input" id="searchInput"
+              placeholder="Search by Request ID, Machine Model, or Service..." oninput="searchRequests()">
+          </div>
+          <div class="filter-controls">
+            <button class="filter-btn active" onclick="filterRequests('all')">All</button>
+            <button class="filter-btn" onclick="filterRequests('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterRequests('progress')">In Progress</button>
+            <button class="filter-btn" onclick="filterRequests('completed')">Completed</button>
+            <button class="filter-btn" onclick="filterRequests('rejected')">Rejected</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="requests-list" id="requestsList">
+        <!-- Request cards will be generated dynamically here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

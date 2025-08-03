@@ -1,0 +1,19 @@
+{% extends "home.html" %}
+
+{% block title %}User Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/user_portal.css">
+{% endblock %}
+
+{% block content %}
+
+<body class="container mt-5">
+    <h2>Add Officer</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="error">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    
+{% endblock %}
