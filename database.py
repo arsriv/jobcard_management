@@ -1,12 +1,14 @@
-from flask import Flask
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-# Connect to local MongoDB server
-client = os.getenv("MONGO_URI")
+MONGO_URI = os.getenv("MONGO_URI")
 
-# jobcard_db created
-db = client["jobcard_db"]
+if not MONGO_URI:
+    raise Exception("MONGO_URI environment variable not set")
+
+client = MongoClient(MONGO_URI)   
+
+db = client["jobcard_db"]         
