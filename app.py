@@ -6,6 +6,8 @@ from pymongo import MongoClient
 from datetime import datetime
 import random
 import smtplib
+from dotenv import load_dotenv
+import os
 from flask_cors import CORS
 from admins.models import Admin
 from officers.models import Officer
@@ -14,6 +16,7 @@ from email.mime.text import MIMEText
 from passlib.hash import pbkdf2_sha256
 import string
 
+load_dotenv()
 app = Flask(__name__)
 CORS(app)
 app.secret_key = 'your_secret_key_here'
@@ -22,8 +25,8 @@ app.secret_key = 'your_secret_key_here'
 app.register_blueprint(users_bp)
 
 # Email configuration
-EMAIL_ADDRESS = 'regerfortnite@gmail.com'
-EMAIL_PASSWORD = 'yacf gkvx jxwg fvlt'  # Use App Password
+EMAIL_ADDRESS = os.getenv("SMTP_EMAIL")
+EMAIL_PASSWORD = os.getenv("SMTP_EMAIL")  # Use App Password
 
 # Database collections
 job_requests = db.service_requests
